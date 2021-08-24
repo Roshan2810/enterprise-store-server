@@ -1,8 +1,10 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const app = express();
+const redis = require("redis");
 const client = redis.createClient();
 const redisData = require("./example")
+const httperror = require("http-errors")
 
 // client.set(
 //   "products",
@@ -34,10 +36,17 @@ app.get("/product/getCampaignProducts", (req, res) => {
 });
 
 app.get("/product/getProductDetails/:productId", (req, res) => {
-  client.get(req.params.productId,(err, result) => {
+  try{
+  const product = req.params.productId;
+  
+  client.get("products",(err, result) => {
     console.log(result)
-    // res.send({ status: 200 ,data: JSON.parse(result)});
+        res.send({ status: 200 ,data: JSON.parse(result)});
   });
+  }catch(err){
+    console.log(err)
+  }
+
 });
 
 app.post("/product/addToCart", (req, res) => {
