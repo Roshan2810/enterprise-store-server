@@ -1,19 +1,43 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const app = express();
+const client = redis.createClient();
+const redisData = require("./example")
 
+// client.set(
+//   "products",
+//   JSON.stringify({redisData }),
+//   (err, reply) => {
+//     console.log(reply, err);
+//   }
+// );
 app.use(bodyParser.json());
 
 app.use((req, res, next) => next());
 
 app.get("/product/getCampaignProducts", (req, res) => {
-  console.log("/product/getCampaignProducts");
-  res.send({ status: 200 });
+  try{
+  client.get("products", (err, result) => {
+      return res.send({
+        success: true,
+        status: 200,
+        data: result
+      });
+  });
+}catch(err){
+  return res.send({
+    success: false,
+    message: err,
+  });
+
+}
 });
 
 app.get("/product/getProductDetails/:productId", (req, res) => {
-  console.log("/product/getProductDetails/:productId");
-  res.send({ status: 200 });
+  client.get(req.params.productId,(err, result) => {
+    console.log(result)
+    // res.send({ status: 200 ,data: JSON.parse(result)});
+  });
 });
 
 app.post("/product/addToCart", (req, res) => {
