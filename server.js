@@ -1,5 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const redis = require("redis");
 const app = express();
 const redis = require("redis");
 const client = redis.createClient();
