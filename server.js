@@ -1,13 +1,26 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const redis = require("redis");
 const app = express();
+const client = redis.createClient();
+const uuid = "1";
+const jsonData = {}
+client.set(
+  "getCampaignProducts",
+  JSON.stringify({ ...jsonData, id: uuid }),
+  (err, reply) => {
+    console.log(reply, err);
+  }
+);
 
 app.use(bodyParser.json());
 
 app.use((req, res, next) => next());
 
 app.get("/product/getCampaignProducts", (req, res) => {
-  console.log("/product/getCampaignProducts");
+  client.get("getCampaignProducts", (err, reply) => {
+    console.log(reply);
+  });
   res.send({ status: 200 });
 });
 
