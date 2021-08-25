@@ -82,13 +82,23 @@ app.get("/product/getProductDetails/:productId", (req, res) => {
 app.post("/product/addToCart", (req, res) => {
   const { productId, userId } = req.body;
   if (productId && userId) {
+    const existingData = getProductDetails();
+    const updatedData = existingData.map((data) => {
+      if (productId === data.productId) {
+        data.available = false;
+      }
+      return data;
+    });
+    client.set("productDetails", JSON.stringify(updatedData), (err, reply) => {
+      console.log(reply, err);
+    });
     const cartId = uuidv4();
     const cartInfo = { productId, cartId };
     client.set(userId, JSON.stringify(cartInfo));
-    client.expire(userId,45)
+    client.expire(userId, 45);
     res.send({
       status: 200,
-      message:"Added to cart successfully",
+      message: "Added to cart successfully",
       data: {
         cartId,
       },
@@ -104,37 +114,37 @@ app.post("/product/addToCart", (req, res) => {
 
 app.post("/product/productCheckedOut", (req, res) => {
   try {
-  const { cartId, userId } = req.body;
-  client.get(userId, (err, reply) => {
-      if(!reply) {
-      res.statusCode = 404;
-      return res.send({
-        status: 404,
-        message: "No User ID Found.",
-      });
+    const { cartId, userId } = req.body;
+    client.get(userId, (err, reply) => {
+      if (!reply) {
+        res.statusCode = 404;
+        return res.send({
+          status: 404,
+          message: "No User ID Found.",
+        });
       }
-    let result = JSON.parse(reply);
-    if (result.cartId === cartId) {
-      res.send({
-        status: 200,
-        message: "Checkout successful",
-      });
-    client.del(userId, (err, reply) => {
-      console.log("Redis Del", reply);
-      }); 
-      }else{
+      let result = JSON.parse(reply);
+      if (result.cartId === cartId) {
+        res.send({
+          status: 200,
+          message: "Checkout successful",
+        });
+        client.del(userId, (err, reply) => {
+          console.log("Redis Del", reply);
+        });
+      } else {
         return res.send({
           status: 404,
           message: "No Cart ID Found.",
         });
       }
     });
-  }catch (err) {
+  } catch (err) {
     return res.send({
       success: false,
       message: err,
-      });
-    }
+    });
+  }
 });
 
 console.log("listening to port 3001");
