@@ -81,7 +81,6 @@ app.get("/product/getProductDetails/:productId", (req, res) => {
 
 app.post("/product/addToCart", (req, res) => {
   const { productId, userId } = req.body;
-  // client.set("productDetails", { available: false });
   if (productId && userId) {
     const cartId = uuidv4();
     const cartInfo = { productId, cartId };
@@ -89,6 +88,7 @@ app.post("/product/addToCart", (req, res) => {
     client.expire(userId,45)
     res.send({
       status: 200,
+      message:"Added to cart successfully",
       data: {
         cartId,
       },
