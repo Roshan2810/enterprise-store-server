@@ -82,6 +82,30 @@ app.get("/product/getProductDetails/:productId", (req, res) => {
 app.post("/product/addToCart", (req, res) => {
   const { productId, userId } = req.body;
   if (productId && userId) {
+    client.get("productDetails", (err, reply) => {
+      let result = JSON.parse(reply);
+      let count = result.filter(
+        (data) => data.productId === productId && data.available
+      ).length;
+      if (count) {
+        res.send({
+          status: 200,
+          message: "Added to cart successfully",
+          data: {
+            cartId,
+          },
+        });
+      } else {
+        res.statusCode = 400;
+        res.send({
+          status: 400,
+          message: "Item is out of stock",
+          data: {
+            cartId,
+          },
+        });
+      }
+    });
     const existingData = getProductDetails();
     const updatedData = existingData.map((data) => {
       if (productId === data.productId) {
@@ -96,13 +120,6 @@ app.post("/product/addToCart", (req, res) => {
     const cartInfo = { productId, cartId };
     client.set(userId, JSON.stringify(cartInfo));
     client.expire(userId, 45);
-    res.send({
-      status: 200,
-      message: "Added to cart successfully",
-      data: {
-        cartId,
-      },
-    });
   } else {
     res.statusCode = 400;
     res.send({
