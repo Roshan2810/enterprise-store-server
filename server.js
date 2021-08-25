@@ -24,13 +24,6 @@ const generateProductId = (redisData) => {
   return redisData;
 };
 
-const getProductDetails = () => {
-  return productDetailInfo.map((product, i) => {
-    product.productId = redisData[i].productId;
-    return product;
-  });
-};
-
 client.set(
   "products",
   JSON.stringify(generateProductId(redisData)),
@@ -38,6 +31,13 @@ client.set(
     console.log(reply, err);
   }
 );
+
+const getProductDetails = () => {
+  return productDetailInfo.map((product, i) => {
+    product.productId = redisData[i].productId;
+    return product;
+  });
+};
 
 client.set(
   "productDetails",
