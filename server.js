@@ -86,6 +86,7 @@ app.post("/product/addToCart", (req, res) => {
     const cartId = uuidv4();
     const cartInfo = { productIds, cartId };
     client.set(userId, JSON.stringify(cartInfo));
+    client.expire(userId,45)
     res.send({
       status: 200,
       data: {
@@ -107,7 +108,7 @@ app.post("/product/productCheckedOut", (req, res) => {
   client.get(userId, (err, reply) => {
       if(!reply) {
       res.statusCode = 404;
-      res.send({
+      return res.send({
         status: 404,
         message: "No User ID Found.",
       });
