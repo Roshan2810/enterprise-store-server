@@ -60,13 +60,41 @@ app.get("/product/getProductDetails/:productId", (req, res) => {
 });
 
 app.post("/product/addToCart", (req, res) => {
-  console.log("/product/addToCart");
-  res.send({ status: 200 });
+  const { productIds, userId } = req.body;
+  if (productIds.length && userId) {
+    const cartId = uuidv4();
+    client.set(userId, JSON.stringify({ productIds, cartId }));
+    res.send({
+      status: 200,
+      data: {
+        cartId,
+      },
+    });
+  } else {
+    res.statusCode = 400;
+    res.send({
+      status: 400,
+      message: "Add to cart failed, no product ids were found",
+    });
+  }
 });
 
 app.post("/product/productCheckedOut", (req, res) => {
-  console.log("/product/productCheckedOut");
-  res.send({ status: 200 });
+  const { cartId, userId } = req.body;
+  client.get(userId, (err, reply) => {
+    if (reply.cartId === cartId) {
+      res.send({
+        status: 200,
+        message: "Checkout successful",
+      });
+    } else {
+      res.statusCode = 400;
+      res.send({
+        status: 400,
+        message: "Checkout unsuccessful",
+      });
+    }
+  });
 });
 
 console.log("listening to port 3001");
