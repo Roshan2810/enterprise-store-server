@@ -1,6 +1,6 @@
 const productDetails = [
   {
-    url: "Iphone_12.jpg",
+    url: "https://m.media-amazon.com/images/I/71ZOtNdaZCL._SL1500_.jpg",
     desc: "Apple iPhone 12 128 GB, Golden",
     rating: "4.0",
     mrp: "74,999",
@@ -22,7 +22,7 @@ const productDetails = [
     ],
   },
   {
-    url: "Iphone_11.jpg",
+    url: "https://m.media-amazon.com/images/I/71i2XhHU3pL._SL1500_.jpg",
     desc: "Apple iPhone 11 128 GB, Black",
     rating: "4.5",
     mrp: "56,999",
