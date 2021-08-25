@@ -101,22 +101,34 @@ app.post("/product/addToCart", (req, res) => {
 });
 
 app.post("/product/productCheckedOut", (req, res) => {
+  try {
   const { cartId, userId } = req.body;
   client.get(userId, (err, reply) => {
+      if(!reply) {
+      res.statusCode = 404;
+      res.send({
+        status: 404,
+        message: "No User ID Found.",
+      });
+      }
     let result = JSON.parse(reply);
     if (result.cartId === cartId) {
       res.send({
         status: 200,
         message: "Checkout successful",
       });
-    } else {
+      }
+    });
+    client.del(userId, (err, reply) => {
+      console.log("Redis Del", reply);
+    });
+  }catch (err) {
       res.statusCode = 400;
       res.send({
         status: 400,
         message: "Checkout unsuccessful",
       });
     }
-  });
 });
 
 console.log("listening to port 3001");
