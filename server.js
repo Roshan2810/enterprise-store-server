@@ -88,6 +88,24 @@ app.post("/product/addToCart", (req, res) => {
         (data) => data.productId === productId && data.available
       ).length;
       if (count) {
+        const existingData = getProductDetails();
+        const updatedData = existingData.map((data) => {
+          if (productId === data.productId) {
+            data.available = false;
+          }
+          return data;
+        });
+        client.set(
+          "productDetails",
+          JSON.stringify(updatedData),
+          (err, reply) => {
+            console.log(reply, err);
+          }
+        );
+        const cartId = uuidv4();
+        const cartInfo = { productId, cartId };
+        client.set(userId, JSON.stringify(cartInfo));
+        client.expire(userId, 45);
         res.send({
           status: 200,
           message: "Added to cart successfully",
@@ -100,26 +118,9 @@ app.post("/product/addToCart", (req, res) => {
         res.send({
           status: 400,
           message: "Item is out of stock",
-          data: {
-            cartId,
-          },
         });
       }
     });
-    const existingData = getProductDetails();
-    const updatedData = existingData.map((data) => {
-      if (productId === data.productId) {
-        data.available = false;
-      }
-      return data;
-    });
-    client.set("productDetails", JSON.stringify(updatedData), (err, reply) => {
-      console.log(reply, err);
-    });
-    const cartId = uuidv4();
-    const cartInfo = { productId, cartId };
-    client.set(userId, JSON.stringify(cartInfo));
-    client.expire(userId, 45);
   } else {
     res.statusCode = 400;
     res.send({
@@ -150,6 +151,7 @@ app.post("/product/productCheckedOut", (req, res) => {
           console.log("Redis Del", reply);
         });
       } else {
+        res.statusCode = 404;
         return res.send({
           status: 404,
           message: "No Cart ID Found.",
