@@ -5,7 +5,7 @@ const productDetails = [
     rating: "4.0",
     mrp: "74,999",
     discountedPrice: "70,999",
-    available: false,
+    available: true,
     productDesc: [
       { value: "IPhone 12", name: "Model Name" },
       { value: "Apple", name: "Brand" },
@@ -51,7 +51,7 @@ const productDetails = [
     rating: "4.0",
     mrp: "44,999",
     discountedPrice: "40,999",
-    available: false,
+    available: true,
     productDesc: [
       { value: "iPhone XR", name: "Model Name" },
       { value: "Apple", name: "Brand" },

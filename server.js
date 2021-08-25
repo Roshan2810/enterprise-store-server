@@ -81,6 +81,7 @@ app.get("/product/getProductDetails/:productId", (req, res) => {
 
 app.post("/product/addToCart", (req, res) => {
   const { productIds, userId } = req.body;
+  // client.set("productDetails", { available: false });
   if (productIds.length && userId) {
     const cartId = uuidv4();
     const cartInfo = { productIds, cartId };
