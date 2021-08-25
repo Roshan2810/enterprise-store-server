@@ -119,16 +119,20 @@ app.post("/product/productCheckedOut", (req, res) => {
         status: 200,
         message: "Checkout successful",
       });
-      }
-    });
     client.del(userId, (err, reply) => {
       console.log("Redis Del", reply);
+      }); 
+      }else{
+        return res.send({
+          status: 404,
+          message: "No Cart ID Found.",
+        });
+      }
     });
   }catch (err) {
-      res.statusCode = 400;
-      res.send({
-        status: 400,
-        message: "Checkout unsuccessful",
+    return res.send({
+      success: false,
+      message: err,
       });
     }
 });
