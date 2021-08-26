@@ -68,18 +68,30 @@ app.get("/product/getCampaignProducts", (req, res) => {
   }
 });
 
-app.get("/product/getProductDetails/:productId", (req, res) => {
+app.get("/product/getProductDetails/:productId", async (req, res) => {
   try {
     const { productId } = req.params;
-    client.get("productDetails", (err, result) => {
-      let parsedResult = JSON.parse(result);
-      let resp_data = parsedResult.filter(
+    let redisData = await getDataFromRedis("productDetails");
+    let productData = redisData.filter(
         (data) => data.productId === productId
       );
-      res.send({ status: 200, data: resp_data });
+    if(productData.length){
+      res.send({ 
+        status: 200,
+        data: productData
     });
+    }else{
+      res.statusCode = 404;
+       res.send({
+         status: 404,
+         message: "Product ID Not Found.",
+        })
+    }
   } catch (err) {
-    console.log(err);
+    return res.send({
+      success: false,
+      message: err,
+    });
   }
 });
 
