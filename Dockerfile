@@ -1,5 +1,4 @@
-FROM node:carbon
-
+FROM node:14.16.1
 RUN wget http://download.redis.io/redis-stable.tar.gz && \
     tar xvzf redis-stable.tar.gz && \
     cd redis-stable && \
@@ -26,3 +25,6 @@ EXPOSE 3006
 EXPOSE 6379
 
 CMD concurrently "/usr/bin/redis-server --bind '0.0.0.0'" "sleep 5s; node /app/server.js" "sleep 1s; node /app/subscriber.js"  
+
+
+
