@@ -4,6 +4,6 @@ services:
     build: .
     ports:
       - "3001:3001"
-      - "3006:3006"
+      - "3006:3006" 
   redis:
     image: "redis:alpine"
