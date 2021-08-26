@@ -13,7 +13,13 @@ async function setDataInRedis(key, value) {
   return response;
 }
 
+async function deleteDataFromRedis(key) {
+  let response = await redis.del(key);
+  return response;
+}
+
 module.exports = {
   getDataFromRedis,
   setDataInRedis,
+  deleteDataFromRedis,
 };

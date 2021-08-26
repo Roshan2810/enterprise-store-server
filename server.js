@@ -8,7 +8,11 @@ const redisData = require("./products");
 const productDetailInfo = require("./productDetails");
 const httperror = require("http-errors");
 const { v4: uuidv4, parse } = require("uuid");
-const { setDataInRedis, getDataFromRedis } = require("./util");
+const {
+  setDataInRedis,
+  getDataFromRedis,
+  deleteDataFromRedis,
+} = require("./util");
 let parsedData;
 app.use(cors());
 
@@ -95,10 +99,10 @@ app.post("/product/addToCart", async (req, res) => {
       });
       await setDataInRedis("productDetails", updatedData);
       const cartId = uuidv4();
-      const cartInfo = { userId, cartId };
-      client.set(productId, JSON.stringify(cartInfo));
-      client.expire(productId, 10);
-      client.publish("__keyevent@0__:expired", "");
+      const cartInfo = { productId, cartId };
+      await setDataInRedis(cartId, cartInfo);
+      client.expire(cartId, 10);
+      client.publish("__keyevent@0__:expired", JSON.stringify(cartInfo));
       res.send({
         status: 200,
         message: "Added to cart successfully",
@@ -122,34 +126,23 @@ app.post("/product/addToCart", async (req, res) => {
   }
 });
 
-app.post("/product/productCheckedOut", (req, res) => {
+app.post("/product/productCheckedOut", async (req, res) => {
   try {
     const { cartId, userId } = req.body;
-    client.get(userId, (err, reply) => {
-      if (!reply) {
-        res.statusCode = 404;
-        return res.send({
-          status: 404,
-          message: "No User ID Found.",
-        });
-      }
-      let result = JSON.parse(reply);
-      if (result.cartId === cartId) {
-        res.send({
-          status: 200,
-          message: "Checkout successful",
-        });
-        client.del(userId, (err, reply) => {
-          console.log("Redis Del", reply);
-        });
-      } else {
-        res.statusCode = 404;
-        return res.send({
-          status: 404,
-          message: "No Cart ID Found.",
-        });
-      }
-    });
+    let cartData = await getDataFromRedis(cartId);
+    if (cartData !== null) {
+      res.send({
+        status: 200,
+        message: "Checkout successful",
+      });
+      await deleteDataFromRedis(cartId);
+    } else if (cartData === null) {
+      res.statusCode = 400;
+      res.send({
+        status: 400,
+        message: "Checkout unsuccessful",
+      });
+    }
   } catch (err) {
     return res.send({
       success: false,
