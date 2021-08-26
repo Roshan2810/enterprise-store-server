@@ -27,7 +27,7 @@ const productDetails = [
     rating: "4.5",
     mrp: "56,999",
     discountedPrice: "50,999",
-    quantity: 100,
+    quantity: 1,
     productDesc: [
       { value: "IPhone 11", name: "Model Name" },
       { value: "Apple", name: "Brand" },
@@ -51,7 +51,7 @@ const productDetails = [
     rating: "4.0",
     mrp: "44,999",
     discountedPrice: "40,999",
-    quantity: 100,
+    quantity: 1,
     productDesc: [
       { value: "iPhone XR", name: "Model Name" },
       { value: "Apple", name: "Brand" },
