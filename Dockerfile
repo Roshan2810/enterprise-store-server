@@ -1,6 +1,4 @@
 FROM node:14.16.1
-FROM redis:3.0.3
-CMD redis-server --bind 127.0.0.1:6379
 COPY / /app
 WORKDIR /app
 RUN npm install
