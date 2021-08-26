@@ -2,8 +2,17 @@ const express = require("express");
 const redis = require("redis");
 const subscriber = redis.createClient();
 const app = express();
-subscriber.on("message", (channel, message) => {
-  console.log("Received data :" + message);
+const { getDataFromRedis, setDataInRedis } = require("./util");
+subscriber.on("message", async (channel, message) => {
+  if (message) {
+    const data = await getDataFromRedis("productDetails");
+    const updatedData = data.map((product) => {
+      if (product.productId === message) product.available = true;
+      return product;
+    });
+    let result = await setDataInRedis("productDetails", updatedData);
+    console.log(result);
+  }
 });
 
 subscriber.subscribe("__keyevent@0__:expired");

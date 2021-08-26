@@ -105,7 +105,7 @@ app.post("/product/addToCart", (req, res) => {
         const cartInfo = { userId, cartId };
         client.set(productId, JSON.stringify(cartInfo));
         client.expire(productId, 5);
-        client.publish("__keyevent@0__:expired", JSON.stringify(cartInfo));
+        client.publish("__keyevent@0__:expired","");
         res.send({
           status: 200,
           message: "Added to cart successfully",
