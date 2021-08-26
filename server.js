@@ -84,13 +84,13 @@ app.post("/product/addToCart", (req, res) => {
     client.get("productDetails", (err, reply) => {
       let result = JSON.parse(reply);
       let count = result.filter(
-        (data) => data.productId === productId && data.available
+        (data) => data.productId === productId && data.quantity
       ).length;
       if (count) {
         const existingData = getProductDetails();
         const updatedData = existingData.map((data) => {
           if (productId === data.productId) {
-            data.available = false;
+            data.quantity--;
           }
           return data;
         });
@@ -104,8 +104,8 @@ app.post("/product/addToCart", (req, res) => {
         const cartId = uuidv4();
         const cartInfo = { userId, cartId };
         client.set(productId, JSON.stringify(cartInfo));
-        client.expire(productId, 5);
-        client.publish("__keyevent@0__:expired","");
+        client.expire(productId, 10);
+        client.publish("__keyevent@0__:expired", "");
         res.send({
           status: 200,
           message: "Added to cart successfully",

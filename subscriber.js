@@ -7,7 +7,7 @@ subscriber.on("message", async (channel, message) => {
   if (message) {
     const data = await getDataFromRedis("productDetails");
     const updatedData = data.map((product) => {
-      if (product.productId === message) product.available = true;
+      if (product.productId === message) product.quantity++;
       return product;
     });
     let result = await setDataInRedis("productDetails", updatedData);

@@ -1,5 +1,4 @@
 const Redis = require("ioredis");
-const { stringify } = require("uuid");
 const redis = new Redis({
   host: "localhost",
   port: "6379",
