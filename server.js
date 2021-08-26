@@ -9,7 +9,6 @@ const productDetailInfo = require("./productDetails");
 const httperror = require("http-errors");
 const { v4: uuidv4, parse } = require("uuid");
 let parsedData;
-
 app.use(cors());
 
 app.use(bodyParser.json());
@@ -103,9 +102,10 @@ app.post("/product/addToCart", (req, res) => {
           }
         );
         const cartId = uuidv4();
-        const cartInfo = { productId, cartId };
-        client.set(userId, JSON.stringify(cartInfo));
-        client.expire(userId, 45);
+        const cartInfo = { userId, cartId };
+        client.set(productId, JSON.stringify(cartInfo));
+        client.expire(productId, 5);
+        client.publish("__keyevent@0__:expired", JSON.stringify(cartInfo));
         res.send({
           status: 200,
           message: "Added to cart successfully",
