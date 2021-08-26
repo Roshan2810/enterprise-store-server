@@ -8,6 +8,7 @@ const redisData = require("./products");
 const productDetailInfo = require("./productDetails");
 const httperror = require("http-errors");
 const { v4: uuidv4, parse } = require("uuid");
+const { setDataInRedis, getDataFromRedis } = require("./util");
 let parsedData;
 app.use(cors());
 
@@ -78,49 +79,40 @@ app.get("/product/getProductDetails/:productId", (req, res) => {
   }
 });
 
-app.post("/product/addToCart", (req, res) => {
+app.post("/product/addToCart", async (req, res) => {
   const { productId, userId } = req.body;
   if (productId && userId) {
-    client.get("productDetails", (err, reply) => {
-      let result = JSON.parse(reply);
-      let count = result.filter(
-        (data) => data.productId === productId && data.quantity
-      ).length;
-      if (count) {
-        const existingData = getProductDetails();
-        const updatedData = existingData.map((data) => {
-          if (productId === data.productId) {
-            data.quantity--;
-          }
-          return data;
-        });
-        client.set(
-          "productDetails",
-          JSON.stringify(updatedData),
-          (err, reply) => {
-            console.log(reply, err);
-          }
-        );
-        const cartId = uuidv4();
-        const cartInfo = { userId, cartId };
-        client.set(productId, JSON.stringify(cartInfo));
-        client.expire(productId, 10);
-        client.publish("__keyevent@0__:expired", "");
-        res.send({
-          status: 200,
-          message: "Added to cart successfully",
-          data: {
-            cartId,
-          },
-        });
-      } else {
-        res.statusCode = 400;
-        res.send({
-          status: 400,
-          message: "Item is out of stock",
-        });
-      }
-    });
+    let existingData = await getDataFromRedis("productDetails");
+    let count = existingData.filter(
+      (val) => val.productId === productId && val.quantity > 0
+    ).length;
+    if (count) {
+      const updatedData = existingData.map((data) => {
+        if (productId === data.productId) {
+          data.quantity--;
+        }
+        return data;
+      });
+      await setDataInRedis("productDetails", updatedData);
+      const cartId = uuidv4();
+      const cartInfo = { userId, cartId };
+      client.set(productId, JSON.stringify(cartInfo));
+      client.expire(productId, 10);
+      client.publish("__keyevent@0__:expired", "");
+      res.send({
+        status: 200,
+        message: "Added to cart successfully",
+        data: {
+          cartId,
+        },
+      });
+    } else {
+      res.statusCode = 400;
+      res.send({
+        status: 400,
+        message: "Item is out of stock",
+      });
+    }
   } else {
     res.statusCode = 400;
     res.send({
