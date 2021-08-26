@@ -51,14 +51,13 @@ client.set(
   }
 );
 
-app.get("/product/getCampaignProducts", (req, res) => {
+app.get("/product/getCampaignProducts", async(req, res) => {
   try {
-    client.get("products", (err, result) => {
-      return res.send({
+    let productList = await getDataFromRedis("products");
+    res.send({
         success: true,
         status: 200,
-        data: JSON.parse(result),
-      });
+      data: productList,
     });
   } catch (err) {
     return res.send({
@@ -71,8 +70,8 @@ app.get("/product/getCampaignProducts", (req, res) => {
 app.get("/product/getProductDetails/:productId", async (req, res) => {
   try {
     const { productId } = req.params;
-    let redisData = await getDataFromRedis("productDetails");
-    let productData = redisData.filter(
+    let productList = await getDataFromRedis("productDetails");
+    let productData = productList.filter(
         (data) => data.productId === productId
       );
     if(productData.length){
