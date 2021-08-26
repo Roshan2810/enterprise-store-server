@@ -5,7 +5,5 @@ services:
     ports:
       - "3001:3001"
       - "3006:3006"
-    links:
-      -localhost:redis
   redis:
     image: "redis:alpine"
