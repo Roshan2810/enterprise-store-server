@@ -109,8 +109,8 @@ app.post("/product/addToCart", async (req, res) => {
         return data;
       });
       await setDataInRedis("productDetails", updatedData);
-      if (exisitingCartId) {
-        const cartDetails = await getDataFromRedis(exisitingCartId);
+      const cartDetails = await getDataFromRedis(exisitingCartId);
+      if (exisitingCartId && cartDetails) {
         cartDetails.productId.push(productId);
         await setDataInRedis(exisitingCartId, cartDetails);
         client.expire(exisitingCartId, 10);
