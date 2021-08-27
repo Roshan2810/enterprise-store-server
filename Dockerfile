@@ -6,6 +6,10 @@ RUN apt-get update && apt-get install -y redis-server
 COPY start.sh /usr/bin/start.sh
 RUN chmod +x /usr/bin/start.sh
 EXPOSE 6379
+RUN redis-server --bind 0.0.0.0 --daemonize yes
+COPY redisconfig.sh /usr/bin/redisconfig.sh
+RUN chmod +x /usr/bin/redisconfig.sh
 CMD ["/usr/bin/start.sh"]
+
 
 
