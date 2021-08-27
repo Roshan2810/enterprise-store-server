@@ -5,7 +5,7 @@ const productDetails = [
     rating: "4.0",
     mrp: "74,999",
     discountedPrice: "70,999",
-    quantity: 1,
+    quantity: 2,
     productDesc: [
       { value: "IPhone 12", name: "Model Name" },
       { value: "Apple", name: "Brand" },

@@ -51,12 +51,12 @@ client.set(
   }
 );
 
-app.get("/product/getCampaignProducts", async(req, res) => {
+app.get("/product/getCampaignProducts", async (req, res) => {
   try {
     let productList = await getDataFromRedis("products");
     res.send({
-        success: true,
-        status: 200,
+      success: true,
+      status: 200,
       data: productList,
     });
   } catch (err) {
@@ -72,19 +72,19 @@ app.get("/product/getProductDetails/:productId", async (req, res) => {
     const { productId } = req.params;
     let productList = await getDataFromRedis("productDetails");
     let productData = productList.filter(
-        (data) => data.productId === productId
-      );
-    if(productData.length){
-      res.send({ 
+      (data) => data.productId === productId
+    );
+    if (productData.length) {
+      res.send({
         status: 200,
-        data: productData
-    });
-    }else{
+        data: productData,
+      });
+    } else {
       res.statusCode = 404;
-       res.send({
-         status: 404,
-         message: "Product ID Not Found.",
-        })
+      res.send({
+        status: 404,
+        message: "Product ID Not Found.",
+      });
     }
   } catch (err) {
     return res.send({
@@ -95,7 +95,7 @@ app.get("/product/getProductDetails/:productId", async (req, res) => {
 });
 
 app.post("/product/addToCart", async (req, res) => {
-  const { productId, userId } = req.body;
+  const { productId, userId, exisitingCartId } = req.body;
   if (productId && userId) {
     let existingData = await getDataFromRedis("productDetails");
     let count = existingData.filter(
@@ -109,18 +109,33 @@ app.post("/product/addToCart", async (req, res) => {
         return data;
       });
       await setDataInRedis("productDetails", updatedData);
-      const cartId = uuidv4();
-      const cartInfo = { productId, cartId };
-      await setDataInRedis(cartId, cartInfo);
-      client.expire(cartId, 10);
-      client.publish("__keyevent@0__:expired", JSON.stringify(cartInfo));
-      res.send({
-        status: 200,
-        message: "Added to cart successfully",
-        data: {
-          cartId,
-        },
-      });
+      if (exisitingCartId) {
+        const cartDetails = await getDataFromRedis(exisitingCartId);
+        cartDetails.productId.push(productId);
+        await setDataInRedis(exisitingCartId, cartDetails);
+        client.expire(exisitingCartId, 10);
+        client.publish("__keyevent@0__:expired", JSON.stringify(cartDetails));
+        res.send({
+          status: 200,
+          message: "Added to cart successfully",
+          data: {
+            cartId: cartDetails.cartId,
+          },
+        });
+      } else {
+        const cartId = uuidv4();
+        const cartInfo = { productId: [productId], cartId };
+        await setDataInRedis(cartId, cartInfo);
+        client.expire(cartId, 10);
+        client.publish("__keyevent@0__:expired", JSON.stringify(cartInfo));
+        res.send({
+          status: 200,
+          message: "Added to cart successfully",
+          data: {
+            cartId,
+          },
+        });
+      }
     } else {
       res.statusCode = 400;
       res.send({
