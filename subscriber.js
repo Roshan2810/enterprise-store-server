@@ -1,6 +1,10 @@
 const express = require("express");
 const redis = require("redis");
-const subscriber = redis.createClient();
+const { REDIS_HOSTNAME, REDIS_PORT } = require("./config/connectionDetails");
+const subscriber = redis.createClient({
+  port: REDIS_PORT,
+  host: REDIS_HOSTNAME,
+});
 const app = express();
 const { getDataFromRedis, setDataInRedis } = require("./util");
 subscriber.on("message", async (channel, message) => {
