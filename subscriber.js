@@ -12,25 +12,24 @@ subscriber.on("message", async (channel, message) => {
     let preExpiredData = await getDataFromRedis("preExpiredData");
     if (preExpiredData.cartId === message) {
       const existingData = await getDataFromRedis("productDetails");
-      // const updatedData = existingData.map((product) => {
-      //   return preExpiredData.productId.map((prod) => {
-      //     if (product.productId === prod.productId) {
-      //       product.quantity++;
-      //       return product;
-      //     }
-      //     return product;
-      //   });
-      // });
-      for (let i = 0; i < existingData.length; i++) {
-        for (let j = 0; j < preExpiredData.productId.length; j++) {
-          if (preExpiredData.productId[j] === existingData[i].productId) {
-            console.log("inside loop");
-            existingData[i].quantity = existingData.quantity + 1;
-          }
+      let preExpiredObj = {};
+      for (let i = 0; i < preExpiredData.productId.length; i++) {
+        if (preExpiredObj.hasOwnProperty(preExpiredData.productId[i])) {
+          preExpiredObj[preExpiredData.productId[i]]++;
+        } else {
+          console.log("inside else");
+          preExpiredObj[preExpiredData.productId[i]] = 1;
         }
       }
-      console.log(existingData);
-      let result = await setDataInRedis("productDetails", existingData);
+
+      let updatedData = existingData.map((data) => {
+        if (preExpiredObj.hasOwnProperty(data.productId)) {
+          data.quantity = data.quantity + preExpiredObj[data.productId];
+        }
+        return data;
+      });
+
+      let result = await setDataInRedis("productDetails", updatedData);
     }
   }
 });
