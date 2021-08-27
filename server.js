@@ -2,18 +2,20 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const redis = require("redis");
 const cors = require("cors");
-const app = express();
-const client = redis.createClient();
-const redisData = require("./products");
+const { v4: uuidv4, } = require("uuid");
 const productDetailInfo = require("./productDetails");
-const httperror = require("http-errors");
-const { v4: uuidv4, parse } = require("uuid");
+const { REDIS_HOSTNAME, REDIS_PORT } = require("./config/connectionDetails");
+const redisData = require("./products");
+const app = express();
+const client = redis.createClient({
+  port: REDIS_PORT,
+  host: REDIS_HOSTNAME,
+});
 const {
   setDataInRedis,
   getDataFromRedis,
   deleteDataFromRedis,
 } = require("./util");
-let parsedData;
 app.use(cors());
 
 app.use(bodyParser.json());
