@@ -11,9 +11,12 @@ subscriber.on("message", async (channel, message) => {
   try {
     let parsedMessage = JSON.parse(message);
     console.log(parsedMessage);
-    await setDataInRedis("preExpiredData", parsedMessage);
+    await setDataInRedis(
+      `${parsedMessage.cartId}-preExpiredData`,
+      parsedMessage
+    );
   } catch (error) {
-    let preExpiredData = await getDataFromRedis("preExpiredData");
+    let preExpiredData = await getDataFromRedis(`${message}-preExpiredData`);
     if (preExpiredData.cartId === message) {
       const existingData = await getDataFromRedis("productDetails");
       let preExpiredObj = {};
@@ -34,6 +37,7 @@ subscriber.on("message", async (channel, message) => {
       });
 
       let result = await setDataInRedis("productDetails", updatedData);
+      subscriber.del(`${message}-preExpiredData`);
     }
   }
 });
