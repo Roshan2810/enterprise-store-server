@@ -7,9 +7,9 @@ const productDetailInfo = require("./productDetails");
 const { REDIS_HOSTNAME, REDIS_PORT } = require("./config/connectionDetails");
 const redisData = require("./products");
 const app = express();
-const client = redis.createClient({
-  port: REDIS_PORT,
-  host: "redis-server",
+const client = redis.createClient(6379, "redis-server", redis);
+client.on("connect", function () {
+  console.log("connected");
 });
 const {
   setDataInRedis,
@@ -17,7 +17,7 @@ const {
   deleteDataFromRedis,
 } = require("./util");
 app.use(cors());
-console.log("redis config" ,REDIS_HOSTNAME,REDIS_PORT);
+console.log("redis config", REDIS_HOSTNAME, REDIS_PORT);
 app.use(bodyParser.json());
 
 app.use((req, res, next) => next());
