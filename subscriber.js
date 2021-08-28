@@ -37,7 +37,6 @@ subscriber.on("message", async (channel, message) => {
       });
 
       let result = await setDataInRedis("productDetails", updatedData);
-      subscriber.del(`${message}-preExpiredData`);
     }
   }
 });
