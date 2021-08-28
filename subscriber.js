@@ -3,9 +3,11 @@ const redis = require("redis");
 const { REDIS_HOSTNAME, REDIS_PORT } = require("./config/connectionDetails");
 const subscriber = redis.createClient({
   port: REDIS_PORT,
-  host: REDIS_HOSTNAME,
+  host: "redis-server",
 });
 const app = express();
+console.log("redis config" ,REDIS_HOSTNAME,REDIS_PORT);
+
 const { getDataFromRedis, setDataInRedis } = require("./util");
 subscriber.on("message", async (channel, message) => {
   try {

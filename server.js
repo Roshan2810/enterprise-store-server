@@ -2,14 +2,14 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const redis = require("redis");
 const cors = require("cors");
-const { v4: uuidv4, } = require("uuid");
+const { v4: uuidv4 } = require("uuid");
 const productDetailInfo = require("./productDetails");
 const { REDIS_HOSTNAME, REDIS_PORT } = require("./config/connectionDetails");
 const redisData = require("./products");
 const app = express();
 const client = redis.createClient({
   port: REDIS_PORT,
-  host: REDIS_HOSTNAME,
+  host: "redis-server",
 });
 const {
   setDataInRedis,
@@ -17,7 +17,7 @@ const {
   deleteDataFromRedis,
 } = require("./util");
 app.use(cors());
-
+console.log("redis config" ,REDIS_HOSTNAME,REDIS_PORT);
 app.use(bodyParser.json());
 
 app.use((req, res, next) => next());
