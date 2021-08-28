@@ -1,8 +1,5 @@
 const Redis = require("ioredis");
-const redis = new Redis({
-  host: "redis-server",
-  port: "6379",
-});
+const redis = new Redis("6379","redis-server");
 async function getDataFromRedis(key) {
   let data = await redis.get(key);
   return JSON.parse(data);
