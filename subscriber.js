@@ -5,7 +5,7 @@ const { REDIS_HOSTNAME, REDIS_PORT } = require("./config/connectionDetails");
 //   port: REDIS_PORT,
 //   host: '127.0.0.1',
 // });
-const subscriber =  redis.createClient(REDIS_PORT, "redis")
+const subscriber =   redis.createClient(6379, "redis-server", redis);
 const app = express();
 console.log("redis config" ,REDIS_HOSTNAME,REDIS_PORT);
 
